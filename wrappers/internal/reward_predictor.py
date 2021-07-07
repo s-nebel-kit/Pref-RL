@@ -15,6 +15,7 @@ class RewardPredictor(Wrapper):
         self.reward_model = reward_model
         self._last_observation = None
         self._last_done = False
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def reset(self, **kwargs):
         self._last_observation = super().reset(**kwargs)
@@ -43,6 +44,7 @@ class RewardPredictor(Wrapper):
         input_data = self._prepare_for_model(observation)
         return float(self.reward_model(input_data))
 
-    @staticmethod
-    def _prepare_for_model(observation):
-        return torch.as_tensor([np.array(observation)])
+    def _prepare_for_model(self, observation):
+        input_data = torch.as_tensor([np.array(observation)])
+        input_data.to(self.device)
+        return input_data
