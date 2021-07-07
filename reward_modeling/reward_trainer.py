@@ -26,6 +26,8 @@ class RewardTrainer(AbstractRewardTrainer):
         self.writer = SummaryWriter()
         self.writing_interval = summary_writing_interval
         self.global_training_step = 0
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.choice_model.to(self.device)
 
     def train_reward_model(self, preferences, epochs, pretraining=False, *args, **kwargs):
         train_loader = torch.utils.data.DataLoader(dataset=preferences, batch_size=self.batch_size)
@@ -33,8 +35,8 @@ class RewardTrainer(AbstractRewardTrainer):
         running_loss = 0.
         for epoch in range(epochs):
 
-            for i, data in enumerate(train_loader, 0):
-                queries, choices = data
+            for i, (queries, choices) in enumerate(train_loader, 0):
+                queries, choices = queries.to(self.device), choices.to(self.device)
 
                 self.optimizer.zero_grad()
 

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import deque
 
+import torch
+
 from agent.rl_agent import RLAgent
 from preference_data.dataset import PreferenceDataset
 from preference_data.querent.preference_querent import AbstractPreferenceQuerent
@@ -13,7 +15,9 @@ from wrappers.utils import add_internal_env_wrappers
 class AbstractPbRLAgent(RLAgent, AbstractQueryGenerator, AbstractPreferenceQuerent, AbstractRewardTrainer, ABC):
     def __init__(self, env, reward_model_name="Mlp", dataset_capacity=4096):
         reward_model_class = get_model_by_name(reward_model_name)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.reward_model = reward_model_class(env)
+        self.reward_model.to(self.device)
 
         # TODO: make deque len either a function of preferences per iteration or a param
         self.query_candidates = deque(maxlen=1024)

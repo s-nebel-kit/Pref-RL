@@ -65,6 +65,7 @@ class AbstractSegmentQueryGenerator(AbstractQueryGenerator, AbstractSegmentSampl
             self.segment_samples.append(sample)
 
     def _make_step(self, obs):
+        # TODO: Change to self.policy_model.env.action_space.sample()
         action, _states = self.policy_model.predict(obs)
         obs, _, done, _ = self.policy_model.env.step(action)
         assert not done, "Env should never return Done=True because of the wrapper that should prevent this."
