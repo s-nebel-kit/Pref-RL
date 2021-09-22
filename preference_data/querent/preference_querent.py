@@ -25,3 +25,8 @@ class AbstractSyntheticPreferenceQuerent(AbstractPreferenceQuerent, AbstractOrac
 class SyntheticPreferenceQuerent(AbstractSyntheticPreferenceQuerent,
                                  MostRecentlyGeneratedQuerySelector, RewardMaximizingOracle):
     pass
+
+class AbstractAsynchronousPreferenceQuerent(AbstractPreferenceQuerent, ABC):
+
+    @abstractmethod
+    def 
