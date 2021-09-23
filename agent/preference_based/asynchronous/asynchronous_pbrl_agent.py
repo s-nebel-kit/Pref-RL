@@ -1,10 +1,14 @@
 from abc import ABC
+from reward_modeling.reward_trainer import RewardTrainer
+from preference_data.querent.preference_querent import AbstractAsynchronousPreferenceQuerent, AsynchronousPreferenceQuerent
+from preference_data.query_generation.segment.segment_query_generator import RandomSegmentQueryGenerator
 from agent.preference_based.pbrl_agent import AbstractPbRLAgent
 
 class AbstractAsynchronousPbRLAgent(AbstractPbRLAgent, ABC):
     def __init__(self, env, reward_model_name="Mlp", num_pretraining_epochs=10, num_training_epochs_per_iteration=10,
                  preferences_per_iteration=500):
         AbstractPbRLAgent.__init__(self, env=env, reward_model_name=reward_model_name)
+        AbstractAsynchronousPreferenceQuerent.__init__(preferences=self.preferences, query_candidates=self.query_candidates, database='db', env_id=env.env_id)
 
         self.num_pretraining_epochs = num_pretraining_epochs
         self.num_training_epochs_per_iteration = num_training_epochs_per_iteration
@@ -31,3 +35,15 @@ class AbstractAsynchronousPbRLAgent(AbstractPbRLAgent, ABC):
             self.generate_queries(self.preferences_per_iteration, with_policy_training=True)
             self.query_preferences(self.preferences_per_iteration)
             
+class AsynchronousPbRLAgent(AbstractAsynchronousPbRLAgent,
+                          RandomSegmentQueryGenerator, AsynchronousPreferenceQuerent, RewardTrainer):
+    def __init__(self, env, reward_model_name="Mlp", num_pretraining_epochs=10, num_training_epochs_per_iteration=10,
+                 preferences_per_iteration=500):
+        AbstractAsynchronousPbRLAgent.__init__(self, env,
+                                             reward_model_name=reward_model_name,
+                                             num_pretraining_epochs=num_pretraining_epochs,
+                                             num_training_epochs_per_iteration=num_training_epochs_per_iteration,
+                                             preferences_per_iteration=preferences_per_iteration)
+        RandomSegmentQueryGenerator.__init__(self, query_candidates=self.query_candidates,
+                                             policy_model=self.policy_model, segment_sampling_interval=50)
+        RewardTrainer.__init__(self, self.reward_model)

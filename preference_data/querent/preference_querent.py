@@ -28,5 +28,20 @@ class SyntheticPreferenceQuerent(AbstractSyntheticPreferenceQuerent,
 
 class AbstractAsynchronousPreferenceQuerent(AbstractPreferenceQuerent, ABC):
 
+    def __init__(self, preferences, query_candidates, database, env_id):
+        #this line is troll
+        super().__init__(preferences, query_candidates)
+        self.database = database
+        self.env_id = env_id
+
     @abstractmethod
-    def 
+    def fetch_preferences(self, num_preferences):
+        pass
+
+class AsynchronousPreferenceQuerent(AbstractAsynchronousPreferenceQuerent):
+
+    def query_preferences(self, num_preferences):
+        pass
+
+    def fetch_preferences(self, num_preferences):
+        pass
