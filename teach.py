@@ -1,7 +1,7 @@
 from agent.preference_based.asynchronous.asynchronous_pbrl_agent import AsynchronousPbRLAgent
 import argparse
 
-from wrappers.utils import create_env
+from wrappers.utils import add_recorder_wrapper, create_env
 
 
 def create_cli():
@@ -20,6 +20,7 @@ def main():
     args = parser.parse_args()
 
     env = create_env(args.env_id, termination_penalty=10.)
+    env= add_recorder_wrapper(env)
 
     agent = AsynchronousPbRLAgent(env=env,
                                   reward_model_name=args.reward_model,

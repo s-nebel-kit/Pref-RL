@@ -1,6 +1,7 @@
 import gym
 from gym import Wrapper
 from gym.envs.atari import AtariEnv
+from gym.wrappers import RecordVideo
 from stable_baselines3.common.atari_wrappers import AtariWrapper
 
 from wrappers.external.indirect_feedback_remover import IndirectFeedbackRemover
@@ -12,7 +13,8 @@ from wrappers.internal.reward_standardizer import RewardStandardizer
 
 def create_env(env_id, termination_penalty=0., frame_stack_depth=4):
     env = gym.make(env_id)
-    env = add_external_env_wrappers(env, termination_penalty, frame_stack_depth)
+    env = add_external_env_wrappers(
+        env, termination_penalty, frame_stack_depth)
     return env
 
 
@@ -26,13 +28,20 @@ def add_external_env_wrappers(env, termination_penalty, frame_stack_depth=4):
     return env
 
 
+def add_recorder_wrapper(env):
+    env = RecordVideo(env, '../../videos', step_trigger=lambda x: x %
+                      100 == 0, video_length=200)
+    return env
+
+
 def is_atari_env(env):
     return isinstance(env.unwrapped, AtariEnv)
 
 
 # TODO: Make this function a static method of the pbrl agent ("_wrap_env", see stable baselines base class)
 def add_internal_env_wrappers(env, reward_model):
-    env = RewardPredictor(env, reward_model)  # TODO: choose the reward prediction wrapper suitable for the reward model
+    # TODO: choose the reward prediction wrapper suitable for the reward model
+    env = RewardPredictor(env, reward_model)
     env = RewardStandardizer(env)
     env = RewardMonitor(env)
     return env
